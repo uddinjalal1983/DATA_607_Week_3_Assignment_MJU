@@ -1,0 +1,88 @@
+---
+title: "DATA_607_Week_5_Assignment"
+author: "Md Jalal Uddin"
+date: "October 1, 2016"
+output: pdf_document
+---
+
+```{r}
+# Load packages 
+
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(knitr)
+
+```
+
+
+```{r}
+flight_delay <- read.csv("C:/Users/sql_ent_svc/Google Drive/DATA_607/Week_5_Assignment/Arrival_delay.csv", header = TRUE, sep = "," , stringsAsFactors = FALSE)
+flight_delay
+#read the csv file using read.csv function and assign it into flight_delay variable. 
+
+```
+
+writing the flight name "Alaska" and "AM WEST" to the empty space
+```{r}
+names(flight_delay)[names(flight_delay) == "X"] <- "Airline"
+names(flight_delay)[names(flight_delay) == "X.1"] <- "Arrival"
+flight_delay[2, 1] <- "Alaska"
+flight_delay[4, 1] <- "AM WEST"
+flight_delay
+
+```
+
+reshape the data with all corresponded values  by using gather funtion
+```{r}
+library(tidyr)
+flight_delay <- gather(flight_delay, "City", "Count", 3:7)
+flight_delay
+
+#Source:http://garrettgman.github.io/tidying/
+
+```
+
+Reshape the flight_delay data in regards to key colum "Arrival" and minimizes the duplication of the data
+```{r}
+
+flight_delay <- spread(flight_delay, "Arrival", Count)
+flight_delay
+
+#Source:http://garrettgman.github.io/tidying/
+
+```
+
+by using mutate function I created total column which is the addition of number of delay and ontime flights and another new delayPerchetage column by dividing the delayed column by Total and multiplied by 100
+```{r}
+library(dplyr)
+flight_delay <- mutate(flight_delay, Total = delayed + ontime, delayPercentage = delayed / Total * 100)
+flight_delay <- arrange(flight_delay, delayPercentage)
+flight_delay
+
+```
+
+Creating barchart using ggplot graphical function
+```{r}
+library(ggplot2)
+ggplot(flight_delay,aes(x=City,y=delayPercentage,fill=factor(Airline)))+
+    geom_bar(stat="identity",position="dodge")
+
+#Source:http://docs.ggplot2.org/0.9.3.1/geom_bar.html
+```
+
+
+Creating a piechart 
+```{r}
+library(ggplot2)
+delay_per <- c(5.15, 7.89, 8.62, 11.09, 14.21, 14.42, 14.50,16.85, 23.28,28,73)
+City <- c("Phoenix(Alaska)", "Phoenix(AM WEST)", "San.Diego(Alaska)", "Los.Angeles(Alaska)", "Seattle(Alaska)", "Los.Angeles(AM WEST)", "San.Diego(AM WEST)", "San.Francisco(Alaska)", "Seattle(AM WEST)", "San.Francisco(AM WEST)" )
+City <- paste(City, "%", sep = "")  # ad % to labels 
+pie(delay_per, labels = City, col = rainbow(length(City)), main = "Pie Chart of Delay Flights")
+
+#Source:http://www.statmethods.net/graphs/pie.html
+
+```
+
+
+
